@@ -12,7 +12,7 @@
  *
  * Dependencies: JQuery v1.7+, JQuery UI, store.js from https://github.com/marcuswestin/store.js - v1.3.4+
  *
- * version 1.0.10
+ * version 1.0.11
  **/
 
 /*global jQuery: false, document: false, store: false, clearInterval: false, setInterval: false, setTimeout: false, clearTimeout: false, window: false, alert: false*/
@@ -68,7 +68,7 @@
       activityDetector,
       startKeepSessionAlive, stopKeepSessionAlive, keepSession, keepAlivePing, // session keep alive
       idleTimer, remainingTimer, checkIdleTimeout, checkIdleTimeoutLoop, startIdleTimer, stopIdleTimer, // idle timer
-      openWarningDialog, dialogTimer, checkDialogTimeout, startDialogTimer, stopDialogTimer, isDialogOpen, destroyWarningDialog, countdownDisplay, // warning dialog
+      openWarningDialog, dialogTimer, checkDialogTimeout, startDialogTimer, stopDialogTimer, isDialogOpen, destroyWarningDialog, countdownDisplay, dialogDisplaySeconds, // warning dialog
       logoutUser;
 
     //##############################
@@ -190,7 +190,7 @@
     checkDialogTimeout = function () {
       var timeDialogTimeout = (store.get('idleTimerLastActivity') + (currentConfig.idleTimeLimit * 1000) + (currentConfig.dialogDisplayLimit * 1000));
 
-      if (($.now() > timeDialogTimeout) || (store.get('idleTimerLoggedOut') === true)) {
+      if ((($.now() > timeDialogTimeout) && (dialogDisplaySeconds <= 0)) || (store.get('idleTimerLoggedOut') === true)) {
         logoutUser();
       }
     };
@@ -223,7 +223,8 @@
     };
 
     countdownDisplay = function () {
-      var dialogDisplaySeconds = currentConfig.dialogDisplayLimit, mins, secs;
+      dialogDisplaySeconds = currentConfig.dialogDisplayLimit;
+      var mins, secs;
 
       remainingTimer = setInterval(function () {
         mins = Math.floor(dialogDisplaySeconds / 60); // minutes
@@ -231,7 +232,7 @@
         secs = dialogDisplaySeconds - (mins * 60); // seconds
         if (secs < 10) { secs = '0' + secs; }
         $('#countdownDisplay').html(mins + ':' + secs);
-        dialogDisplaySeconds -= 1;
+        if (dialogDisplaySeconds) { dialogDisplaySeconds -= 1; }
       }, 1000);
     };
 
