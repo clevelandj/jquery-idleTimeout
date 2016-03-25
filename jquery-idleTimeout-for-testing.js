@@ -59,8 +59,9 @@
       errorAlertMessage: 'Please disable "Private Mode", or upgrade to a modern browser. Or perhaps a dependent file missing. Please see: https://github.com/marcuswestin/store.js',
 
       // server-side session keep-alive timer
-      sessionKeepAliveTimer: 600,   // ping the server at this interval in seconds. 600 = 10 Minutes. Set to false to disable pings
-      sessionKeepAliveUrl: window.location.href // set URL to ping - does not apply if sessionKeepAliveTimer: false
+      sessionKeepAliveTimer: 600,   // ping the server at this interval in seconds. 600 = 10 Minutes. Set to false to disable timed pings
+      sessionKeepAliveOnStayLoggedIn: false, // set to true to ping the server when the dialogStayLoggedInButton is clicked
+      sessionKeepAliveUrl: window.location.href // set URL to ping - does not apply if sessionKeepAliveTimer: false and sessionKeepAliveOnStayLoggedIn: false
     },
 
     //##############################
@@ -70,7 +71,7 @@
       origTitle = document.title, // save original browser title
       storeConfiguration, // public function support, store private configuration variables
       activityDetector,
-      startKeepSessionAlive, stopKeepSessionAlive, keepSession, keepAlivePing, // session keep alive
+      pingServer, startKeepSessionAlive, stopKeepSessionAlive, keepSession, keepAlivePing, // session keep alive
       idleTimer, remainingTimer, checkIdleTimeout, checkIdleTimeoutLoop, startIdleTimer, stopIdleTimer, // idle timer
       openWarningDialog, dialogTimer, checkDialogTimeout, startDialogTimer, stopDialogTimer, isDialogOpen, destroyWarningDialog, countdownDisplay, // warning dialog
       logoutUser,
@@ -104,12 +105,16 @@
     };
 
     //----------- KEEP SESSION ALIVE FUNCTIONS --------------//
+    pingServer = function() {
+      $.get(currentConfig.sessionKeepAliveUrl);
+    };
+    
     startKeepSessionAlive = function () {
       console.log('start startKeepSessionAlive');
 
       keepSession = function () {
         console.log('startKeepSessionAlive - send ping to sessionKeepAliveUrl');
-        $.get(currentConfig.sessionKeepAliveUrl);
+        pingServer();
         startKeepSessionAlive();
       };
 
@@ -194,6 +199,7 @@
           text: currentConfig.dialogStayLoggedInButton,
           click: function () {
             console.log('Stay Logged In button clicked');
+            if (currentConfig.sessionKeepAliveOnStayLoggedIn) { pingServer(); }
             destroyWarningDialog();
             stopDialogTimer();
             startIdleTimer();
