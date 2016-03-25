@@ -1,9 +1,5 @@
 Changelog - JillElaine/jquery-idleTimeout.js
 --------------------------------------------
-v.1.0.11
-+ Fix logging out before dialog counter has reached 0 (fixes issue #18)
-+ Fix displaying 'NaN' in the dialog
-
 v.1.0.10
 + Fix 'Time Remaining' dialog timeout bug. Closes issue #17
 
